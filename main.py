@@ -2,10 +2,15 @@
 
 # Patricia Wilson, UCD Professional Academy - Introduction to Data Analytics
 
-# How many Gold, Silver and Bronze Medals have been won by Ireland between 1896 - 2012?
-# Do countries with greater GDP win more medals?
-# who is the most successful athlete in summer olympics history?
-# Number of successful men and women in each sport by country?
+# Data Import
+# Data Preparation
+# 1. Do countries with greater GDP win more medals?
+# 2. Which top 10 countries have had the most athletes participate in olympic sports?
+# 3. Who are the top 10 most successful athletes at the summer olympics from 1896 -2012?
+# 4. How many Gold, Silver and Bronze Medals have been won by Ireland between 1896 - 2012?
+# 5. In which years did Irish Olympians win medals?
+# 6.  How many medals were won by Ireland in the 2020 Tokyo Olympics?
+# Define a custom function to get min, max and average populations from the complete country details dataframe and print the results
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Import required modules
@@ -21,11 +26,9 @@ from wordcloud import WordCloud
 import xlrd
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Data Import
 # load excel files of countries and population details and convert to dataframe
 # Assign the filename: country
-
-# country = "C://Users/patriciawilson/Downloads/dictionary.xlsx"
-
 
 with pd.ExcelFile("https://raw.githubusercontent.com/patriciawilson2021/UCDPA_Patricia-Wilson/main/dictionary.xlsx") as reader:
     country_details = pd.read_excel(reader, sheet_name='dictionary')
@@ -35,7 +38,6 @@ print(country_details.head())
 print(type(country_details))
 
 # load a dataframe of olympics data and convert to dataframe
-# Assign the filename: data
 
 with pd.ExcelFile("https://raw.githubusercontent.com/patriciawilson2021/UCDPA_Patricia-Wilson/main/summer.xlsx") as reader:
     summer_olympics = pd.read_excel(reader, sheet_name='summer')
@@ -45,13 +47,17 @@ print(summer_olympics.head())
 print(type(summer_olympics))
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Data Preparation
 # check the dataframes for empty values
 # examine if there are blank rows
 print(country_details.isnull())
-complete_country_details = country_details.fillna(0)
-# complete_country_details['GDP'].hist()
-# plt.show()
 
+# Fill any blanks in country_details with '0' and create new dataframe: Complete_country_details
+complete_country_details = country_details.fillna(0)
+# check complete country details to make sure that no nulls remain
+print(complete_country_details.isnull())
+
+#Check summer olympics for null values
 print(summer_olympics.isna())
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -68,12 +74,14 @@ print(type(data_with_gdp))
 print(data_with_gdp.head())
 
 # use Seaborn scatterplot to visualise that data
-sns.scatterplot(x="Country", y="GDP", data=data_with_gdp, hue="Medal")
-plt.xticks(rotation=40)
+gdp_plot = sns.scatterplot(x="Country", y="GDP", data=data_with_gdp, hue="Medal")
+plt.xticks(rotation=90)
+gdp_plot.set_title("Number of medals won per GDP")
+gdp_plot.set(xlabel="Countries", ylabel="GDP Per Capita")
 plt.show()
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 2. Which top 10 countries have had the most athletes participate in olympic sports?
+# 2. Which top 10 winning countries have had the most athletes participate in olympic sports?
 
 # create dictionary containing athletes and the country they represent
 country_ath = dict()
@@ -96,9 +104,10 @@ print(ath_details_grp)
 print(type(ath_details_grp))
 
 # Create seaborn bar plot to plot the information
-ax = sns.barplot(x='Athlete', y='Code', data=ath_details_grp)
+ax = sns.barplot(x='Athlete', y='Code', data=ath_details_grp, palette="rocket")
 ax.bar_label(ax.containers[0])
-
+ax.set_title("Top 10 countries with greatest number of successful athletes in the Olympic Games")
+ax.set(xlabel="Number of Athletes", ylabel="Countries")
 # show plot
 plt.show()
 
@@ -121,7 +130,6 @@ print(top_10_list)
 data = summer_olympics['Athlete'].value_counts().to_dict()
 top_10_dict = dict(Counter(data).most_common(10))
 wc = WordCloud(background_color="blue").generate_from_frequencies(top_10_dict)
-
 plt.imshow(wc)
 plt.axis('off')
 plt.show()
@@ -134,13 +142,20 @@ Ireland_srt = summer_olympics.set_index("Code")
 Ireland = Ireland_srt.loc["IRL"]
 print(Ireland.head())
 
-# sum of number of each medal type won
+# sum of number of each medal type won.  This code returns a series.
 Ireland_medals_by_amount = Ireland.groupby("Medal")
 medal_totals = Ireland.value_counts("Medal")
+
+print(type(medal_totals))
 print(medal_totals)
 
 # Create a bar plot of the number of medals won by type
-medal_totals.plot(kind="bar")
+medal_bar_chart = medal_totals.plot(kind="bar", color=['darkgoldenrod', 'gold', 'silver'])
+
+# set axis labels
+medal_bar_chart.set_xlabel("Medals")
+medal_bar_chart.set_ylabel("Number of medals won")
+medal_bar_chart.set_title("Gold, Silver and Bronze medals won by Ireland 1896 - 2012")
 
 # Show the plot
 plt.show()
@@ -165,8 +180,12 @@ medals = pd.DataFrame(data_list)
 medals.columns = ['Year', 'Total']
 print(medals)
 
-medals.plot(x="Year", y="Total", kind="line")
+medal_plot = medals.plot(x="Year", y="Total", kind="line", color="green")
+medal_plot.set_xlabel("Years medals were won")
+medal_plot.set_ylabel("Number of medals won")
+medal_plot.set_title("Years in which Ireland won Olympic medals")
 plt.show()
+
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Define a custom function to get min, max and average populations from the complete country details dataframe and print the results
@@ -223,6 +242,7 @@ print(tokyo.dtypes)
 # create visualisation to show number of medals won in each sport by Ireland in Tokyo 2020
 ax = sns.barplot(x='Sport', y='Total', data=tokyo)
 ax.bar_label(ax.containers[0])
+ax.set_title("Medals won by Ireland in Tokyo 2020")
 
 # show plot
 plt.show()
