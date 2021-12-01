@@ -1,11 +1,11 @@
-# Analysis of Summer Olympics 1896 - 2012
+# Analysis of Medals won in Summer Olympics 1896 - 2012
 
 # Patricia Wilson, UCD Professional Academy - Introduction to Data Analytics
 
 # Data Import
 # Data Preparation
 # 1. Do countries with greater GDP win more medals?
-# 2. Which top 10 countries have had the most athletes participate in olympic sports?
+# 2. Count Gold, silver, Bronze medals by Gender
 # 3. Who are the top 10 most successful athletes at the summer olympics from 1896 -2012?
 # 4. How many Gold, Silver and Bronze Medals have been won by Ireland between 1896 - 2012?
 # 5. In which years did Irish Olympians win medals?
@@ -17,13 +17,13 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import pyplot
 import seaborn as sns
 import numpy as np
 from collections import Counter
 import requests
 from bs4 import BeautifulSoup
 from wordcloud import WordCloud
-import xlrd
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Data Import
@@ -57,8 +57,9 @@ complete_country_details = country_details.fillna(0)
 # check complete country details to make sure that no nulls remain
 print(complete_country_details.isnull())
 
-#Check summer olympics for null values
+# Check summer olympics for null values
 print(summer_olympics.isna())
+
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # 1. Do countries with greater GDP win more medals?
@@ -81,35 +82,43 @@ gdp_plot.set(xlabel="Countries", ylabel="GDP Per Capita")
 plt.show()
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 2. Which top 10 winning countries have had the most athletes participate in olympic sports?
+# 2. Count Gold, silver, Bronze medals by Gender
 
-# create dictionary containing athletes and the country they represent
-country_ath = dict()
-summer_olympics_ath = summer_olympics.groupby(['Athlete'])
-for ath, co in summer_olympics_ath:
-        coun = co.groupby(['Code'])
-        for k, l in coun:
-            country_ath[k] = len(l)
-print(country_ath)
+# create separate dictionaries for medals won by men and women.
+men = dict()
+women = dict()
 
-# convert dictionary to dataframe for visualisation
-data_items = country_ath.items()
-data_list = list(data_items)
-ath_details = pd.DataFrame(data_list)
-ath_details.columns = ['Code', 'Athlete']
+# loop through summer olympics dataframe to populate dictionaries and count values of gold, silver & bronze medals.
+summer_olympics_grp = summer_olympics.groupby(['Gender'])
+for ge, me in summer_olympics_grp:
+    if ge == 'Men':
+        med = me.groupby(['Medal'])
+        for k, l in med:
+            men[k] = len(l)
+    elif ge == 'Women':
+        med = me.groupby(['Medal'])
+        for k, l in med:
+            women[k] = len(l)
 
-# sort list so that countries with most athletes appear first.  First 10 countries only
-ath_details_grp = ath_details.sort_values(by='Athlete', ascending=False).iloc[0:10]
-print(ath_details_grp)
-print(type(ath_details_grp))
+#print resulting dictionaries
+print(men)
+print(women)
 
-# Create seaborn bar plot to plot the information
-ax = sns.barplot(x='Athlete', y='Code', data=ath_details_grp, palette="rocket")
-ax.bar_label(ax.containers[0])
-ax.set_title("Top 10 countries with greatest number of successful athletes in the Olympic Games")
-ax.set(xlabel="Number of Athletes", ylabel="Countries")
-# show plot
+# plot the information on a grouped bar chart.
+# I had trouble getting this to work properly so ended up needing help from
+# https://stackoverflow.com/questions/45968359/plotting-two-dictionaries-in-one-bar-chart-with-matplotlib
+
+X = np.arange(len(men))
+ax = plt.subplot(111)
+ax.bar(X, men.values(), width=0.2, color='lightsteelblue', align='center')
+ax.bar(X-0.2, women.values(), width=0.2, color='pink', align='center')
+ax.legend(('men', 'women'))
+plt.xticks(X, men.keys())
+plt.title("Medal Winners by Gender", fontsize=17)
+
+# display grouped bar chart
 plt.show()
+
 
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # 3. Who are the top 10 most successful athletes at the summer olympics from 1896 -2012?
@@ -132,6 +141,8 @@ top_10_dict = dict(Counter(data).most_common(10))
 wc = WordCloud(background_color="blue").generate_from_frequencies(top_10_dict)
 plt.imshow(wc)
 plt.axis('off')
+
+# display wordcloud
 plt.show()
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -180,10 +191,26 @@ medals = pd.DataFrame(data_list)
 medals.columns = ['Year', 'Total']
 print(medals)
 
+# check type of items in list
+print(medals.columns.dtype)
+
+# convert year column to numeric to allow it to be used as x axis
+medals['Year'] = pd.to_numeric(medals['Year'])
+
+# create medal_plot
 medal_plot = medals.plot(x="Year", y="Total", kind="line", color="green")
 medal_plot.set_xlabel("Years medals were won")
 medal_plot.set_ylabel("Number of medals won")
 medal_plot.set_title("Years in which Ireland won Olympic medals")
+
+# set x axis to show all years from first year in which Ireland won medals to the last.
+# set x axis to show all years in steps of 4 (as olympic games occur every 4 years)
+medal_plot.set_xticks((np.arange(min(medals['Year']), max(medals['Year'])+1, 4.0)))
+medal_plot.tick_params(axis='x', labelrotation=45)
+
+# add grid to make it easier to match x and y values
+plt.grid()
+# show plot
 plt.show()
 
 
