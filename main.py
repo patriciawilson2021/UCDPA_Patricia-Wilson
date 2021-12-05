@@ -36,6 +36,7 @@ with pd.ExcelFile("https://raw.githubusercontent.com/patriciawilson2021/UCDPA_Pa
 # Show details of the country_details dataframe
 print(country_details.head())
 print(type(country_details))
+print(country_details.shape)
 
 # load a dataframe of olympics data and convert to dataframe
 
@@ -45,6 +46,7 @@ with pd.ExcelFile("https://raw.githubusercontent.com/patriciawilson2021/UCDPA_Pa
 # View the head of the DataFrame
 print(summer_olympics.head())
 print(type(summer_olympics))
+print(summer_olympics.shape)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Data Preparation
@@ -198,7 +200,7 @@ print(medals.columns.dtype)
 medals['Year'] = pd.to_numeric(medals['Year'])
 
 # create medal_plot
-medal_plot = medals.plot(x="Year", y="Total", kind="line", color="green")
+medal_plot = medals.plot(x="Year", y="Total", kind="line", marker = 'o', color="green")
 medal_plot.set_xlabel("Years medals were won")
 medal_plot.set_ylabel("Number of medals won")
 medal_plot.set_title("Years in which Ireland won Olympic medals")
@@ -213,29 +215,8 @@ plt.grid()
 # show plot
 plt.show()
 
-
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Define a custom function to get min, max and average populations from the complete country details dataframe and print the results
-def population_details():
-
-    max_pop = np.max(population)
-    min_pop = np.min(population)
-    avg_pop = np.mean(population)
-
-    print("min of population : ", min_pop)
-    print("max of population : ", max_pop)
-    print("mean of population : ", avg_pop)
-
-
-# create an array of the population column from the complete country details DataFrame
-population = complete_country_details['Population'].to_numpy().astype(float)
-print(type(population))
-
-# get details from the Population array using the defined Population details function
-population_details()
-
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# How many medals were won by Ireland in the 2020 Tokyo Olympics?
+# 6. How many medals were won by Ireland in the 2020 Tokyo Olympics?
 # use beautifulsoup to scrape a table from Wikipedia
 # Got help with this part of the project from the following site https://stackoverflow.com/questions/59054480/assertionerror-5-columns-passed-passed-data-had-1-columns
 
@@ -273,4 +254,23 @@ ax.set_title("Medals won by Ireland in Tokyo 2020")
 
 # show plot
 plt.show()
-# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Define a custom function to get min, max and average populations from the complete country details dataframe and print the results
+def population_details():
+
+    max_pop = np.max(population)
+    min_pop = np.min(population)
+    avg_pop = np.mean(population)
+
+    print("min of population : ", min_pop)
+    print("max of population : ", max_pop)
+    print("mean of population : ", avg_pop)
+
+
+# create an array of the population column from the complete country details DataFrame
+population = complete_country_details['Population'].to_numpy().astype(float)
+print(type(population))
+
+# get details from the Population array using the defined Population details function
+population_details()
