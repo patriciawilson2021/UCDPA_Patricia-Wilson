@@ -107,8 +107,6 @@ print(men)
 print(women)
 
 # plot the information on a grouped bar chart.
-# I had trouble getting this to work properly so ended up needing help from
-# https://stackoverflow.com/questions/45968359/plotting-two-dictionaries-in-one-bar-chart-with-matplotlib
 
 X = np.arange(len(men))
 ax = plt.subplot(111)
@@ -218,7 +216,6 @@ plt.show()
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # 6. How many medals were won by Ireland in the 2020 Tokyo Olympics?
 # use beautifulsoup to scrape a table from Wikipedia
-# Got help with this part of the project from the following site https://stackoverflow.com/questions/59054480/assertionerror-5-columns-passed-passed-data-had-1-columns
 
 url = 'https://en.wikipedia.org/wiki/Ireland_at_the_2020_Summer_Olympics'
 website_url = requests.get(url)
